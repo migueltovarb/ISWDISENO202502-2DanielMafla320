@@ -1,0 +1,91 @@
+import csv
+import time
+def cargar_funciones():
+    funciones = []
+    try:
+        with open('funciones.csv', mode='r', newline='') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                funciones.append(row)
+    except FileNotFoundError:
+        pass  
+    return funciones
+def guardar_funciones(funciones):
+    with open('funciones.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        for funcion in funciones:
+            writer.writerow(funcion)
+def cargar_ventas():
+    ventas = []
+    try:
+        with open('ventas.csv', mode='r', newline='') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                ventas.append(row)
+    except FileNotFoundError:
+        pass
+    return ventas
+def guardar_ventas(ventas):
+    with open('ventas.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        for venta in ventas:
+            writer.writerow(venta)
+def registrar_funcion(funciones):
+    pelicula = input("Introduce el nombre de la película: ")
+    hora = input("Introduce la hora de la función (HH:MM): ")
+    precio = float(input("Introduce el precio del boleto: "))
+    codigo = len(funciones) + 1
+    funciones.append([codigo, pelicula, hora, precio])
+    guardar_funciones(funciones)
+    print(f"Función {pelicula} registrada con éxito.")
+def listar_funciones(funciones):
+    print("\nFunciones disponibles:")
+    for funcion in funciones:
+        print(f"Código: {funcion[0]} | Película: {funcion[1]} | Hora: {funcion[2]} | Precio: ${funcion[3]:.2f}")
+def vender_boletos(funciones, ventas):
+    listar_funciones(funciones)
+    codigo_funcion = int(input("Introduce el código de la función: "))
+    cantidad_boletos = int(input("Introduce la cantidad de boletos a vender: "))
+    funcion = next((f for f in funciones if f[0] == codigo_funcion), None)
+    if not funcion:
+        print("Error: Función no encontrada.")
+        return
+    if cantidad_boletos <= 0:
+        print("Error: La cantidad de boletos debe ser mayor que cero.")
+        return
+    total_pagar = cantidad_boletos * funcion[3]
+    ventas.append([codigo_funcion, cantidad_boletos, total_pagar])
+    guardar_ventas(ventas)
+    print(f"Venta realizada. Total a pagar: ${total_pagar:.2f}")
+def resumen_ventas(ventas):
+    total_boletos = sum(venta[1] for venta in ventas)
+    total_recaudado = sum(venta[2] for venta in ventas)
+    print(f"Resumen de ventas del día:")
+    print(f"Boleto vendidos: {total_boletos}")
+    print(f"Dinero recaudado: ${total_recaudado:.2f}")
+def menu():
+    funciones = cargar_funciones()
+    ventas = cargar_ventas()
+    while True:
+        print("----- Menú -----")
+        print("1. Registrar una nueva función")
+        print("2. Listar las funciones disponibles")
+        print("3. Vender los boletos")
+        print("4. Ver resumen de ventas")
+        print("5. Salir")
+        opcion = input("Selecciona una opción: ")
+        if opcion == '1':
+            registrar_funcion(funciones)
+        elif opcion == '2':
+            listar_funciones(funciones)
+        elif opcion == '3':
+            vender_boletos(funciones, ventas)
+        elif opcion == '4':
+            resumen_ventas(ventas)
+        elif opcion == '5':
+            print("Gracias por su compra.")
+            break
+        else:
+            print("Opción inválida, por favor intenta nuevamente.")
+if __name__ == "__main__":
+    menu()
